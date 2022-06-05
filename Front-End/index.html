@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Smart Proctoring</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="../Front-End/css/all.css">
+
+
+    <!-- --------- Owl-Carousel ------------------->
+    <link rel="stylesheet" href="../Front-End/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="../Front-End/css/owl.theme.default.min.css">
+
+    <!-- ------------ AOS Library ------------------------- -->
+    <link rel="stylesheet" href="../Front-End/css/aos.css">
+
+    <!-- Custom Style   -->
+    <link rel="stylesheet" href="../Front-End/css/Style.css">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-free-6.1.1-web/css/all.css') }}"> -->
+
+    <script src="../Front-End/js/Jquery3.4.1.min.js"></script>
+    <script src="../Front-End/js/upImage.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <nav class="nav">
+        <div class="nav-menu flex-row">
+            <div class="nav-brand">
+                <img src="../Front-End/assets/image 4.png" class="text-gray">
+            </div>
+        </div>
+    </nav>
+
+    <!----------------------------- Main Site Section ------------------------------>
+
+    <main>
+
+        <!------------------------ Site Title ---------------------->
+
+        <section class="site-title">
+            <div class="site-background" data-aos="fade-up" data-aos-delay="100">
+                <form action="http://127.0.0.1:5000/" method="post" enctype="multipart/form-data" class="site-background">
+                    <h1>Maximal 12 Photos</h1>
+                    <div class="field">
+                        <input type="file" id="" name="image" multiple class="btn">
+                    </div>
+            </div>
+        </section>
+        <input type="submit" value="submit" id="submit" class="btn2">
+        </form>
+
+        <!------------x----------- Site Title ----------x----------->
+
+
+        <!-- ---------------------- Site Content -------------------------->
+        <!-- <p>result : {{ result }}</p> -->
+        <section class="container">
+            <div class="site-content">
+                <aside class="sidebar">
+                    <div class="category">
+                        <h2>SUMMARY</h2>
+                        <ul class="category-list">
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="100">
+                                <a href="#">angry</a>
+                                <span id="angry">(01)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="200">
+                                <a href="#">sad</a>
+                                <span id="sad">(02)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="300">
+                                <a href="#">disgusting</a>
+                                <span id="sad">(03)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="400">
+                                <a href="#">natural</a>
+                                <span id="natural">(04)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="500">
+                                <a href="#">happy</a>
+                                <span id="happy">(05)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="600">
+                                <a href="#">surprise</a>
+                                <span id="surprise">(06)</span>
+                            </li>
+                            <li class="list-items" data-aos="fade-left" data-aos-delay="700">
+                                <a href="#">fear</a>
+                                <span id="fear">(07)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+            </div>
+        </section>
+        <!-- -----------x---------- Site Content -------------x------------>
+    </main>
+
+    <!---------------x------------- Main Site Section ---------------x-------------->
+
+    <!-- Jquery Library file -->
+    <script src="../Front-End/js/Jquery3.4.1.min.js"></script>
+
+    <!-- --------- Owl-Carousel js ------------------->
+    <script src="../Front-End/js/owl.carousel.min.js"></script>
+
+    <!-- ------------ AOS js Library  ------------------------- -->
+    <script src="../Front-End/js/aos.js"></script>
+
+    <!-- Custom Javascript file -->
+    <script src="../Front-End/js/main.js"></script>
+    <script src="../Front-End/js/form.js"></script>
+
+</body>
+
+</html>
