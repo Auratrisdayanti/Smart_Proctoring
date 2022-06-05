@@ -86,6 +86,7 @@ def predictEmotion():
         'predictions': predicts,
         'summary': summary
     }
+    return jsonify(result)
 
 
 if __name__ == '__main__':
