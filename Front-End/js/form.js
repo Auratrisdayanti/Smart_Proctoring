@@ -1,3 +1,7 @@
+function roundToTwo(num) {
+    return +(Math.round(num + "e+2") + "e-2");
+}
+
 $(document).ready(function() {
 
     $('#submit').click(function() {
@@ -27,6 +31,21 @@ $(document).ready(function() {
                 //     $('#preview').append('<img src="'+src+'" width="200px;" height="200px">');
                 // }
                 console.log(response)
+                let summary = response.summary;
+                $('#summary').empty();
+                let sortedSummary = Object.entries(summary).sort(([, a], [, b]) => b - a);
+
+                sortedSummary.forEach(element => {
+                    let name = element[0];
+                    let convident = roundToTwo(element[1] * 100);
+
+                    $('#summary').append(`
+                        <li class="list-items" data-aos="fade-left" data-aos-delay="200">
+                            <a href="#">${name}</a>
+                            <span>${convident}%</span>
+                        </li>
+                    `)
+                });
 
             }
         });
