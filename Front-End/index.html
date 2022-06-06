@@ -44,7 +44,7 @@
 
         <section class="site-title">
             <div class="site-background" data-aos="fade-up" data-aos-delay="100">
-                <form action="http://127.0.0.1:5000/api/predict" method="post" enctype="multipart/form-data" class="site-background">
+                <form action="http://127.0.0.1:5000/api/predict" method="post" enctype="multipart/form-data" class="site-background" onsubmit="event.preventDefault();">
                     <h1>Maximal 12 Photos</h1>
                     <div class="field">
                         <input type="file" id="files" name="image" multiple class="">
@@ -58,13 +58,12 @@
 
 
         <!-- ---------------------- Site Content -------------------------->
-        <!-- <p>result : {{ result }}</p> -->
         <section class="container">
             <div class="site-content">
                 <aside class="sidebar">
                     <div class="category">
                         <h2>SUMMARY</h2>
-                        <ul class="category-list">
+                        <ul class="category-list" id="summary">
                             <li class="list-items" data-aos="fade-left" data-aos-delay="100">
                                 <a href="#">angry</a>
                                 <span id="angry">(01)</span>
