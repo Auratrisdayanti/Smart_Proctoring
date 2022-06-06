@@ -12,7 +12,7 @@ $(document).ready(function() {
 
         // AJAX request
         $.ajax({
-            url: 'http://127.0.0.1:5000/',
+            url: 'http://127.0.0.1:5000/api/predict',
             type: 'post',
             data: form_data,
             dataType: 'json',

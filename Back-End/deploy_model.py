@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 # load model dan label
-modelpath = 'Back-End/model/94_93.h5'
+modelpath = 'model/94_93.h5'
 labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 model = keras.models.load_model(modelpath)
 
@@ -63,7 +63,7 @@ def summary_predict(predicts: list) -> dict:
 app = Flask("__name__")
 
 
-@app.route('/', methods=['POST'])
+@app.route('/api/predict', methods=['POST'])
 def predictEmotion():
     predicts = []
     file_images = request.files.getlist('image')
