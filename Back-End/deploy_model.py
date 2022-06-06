@@ -2,6 +2,8 @@ from tensorflow import keras
 from flask import Flask, request, render_template, jsonify
 import cv2
 import numpy as np
+from flask_cors import CORS, cross_origin
+
 
 # load model dan label
 modelpath = 'model/94_93.h5'
@@ -61,9 +63,10 @@ def summary_predict(predicts: list) -> dict:
 
 
 app = Flask("__name__")
-
+CORS(app)
 
 @app.route('/api/predict', methods=['POST'])
+@cross_origin()
 def predictEmotion():
     predicts = []
     file_images = request.files.getlist('image')
