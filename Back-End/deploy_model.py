@@ -1,15 +1,37 @@
-from tensorflow import keras
+from tensorflow.keras.models import load_model
 from flask import Flask, request, render_template, jsonify
 import cv2
 import numpy as np
 from flask_cors import CORS, cross_origin
+import base64
+from dlib import get_frontal_face_detector
+
+import sys
 
 
 # load model dan label
-modelpath = 'model/94_93.h5'
+modelpath = 'model/model_deepface.h5'
 labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
-model = keras.models.load_model(modelpath)
+model = load_model(modelpath)
+faceDetector = get_frontal_face_detector()
 
+def image2Base64(img):
+    retval, buffer = cv2.imencode('.jpg', img)
+    base64_img = base64.b64encode(buffer)
+    base64_img = str(base64_img,'utf-8')
+    return base64_img
+
+def crop_image_dlib(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = faceDetector(gray, 1)
+    if len(faces) == 0:
+        return None
+    top = faces[0].top()
+    bottom = faces[0].bottom()
+    left = faces[0].left()
+    right = faces[0].right()
+    img = img[top:bottom, left:right]
+    return img
 
 def crop_image(img):
     gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -24,15 +46,15 @@ def crop_image(img):
 
 
 def preprocessing_image(crop_image):
-    # img = image.load_img(imagepath,target_size = (48,48),color_mode = "grayscale")
+        # img = image.load_img(imagepath,target_size = (48,48),color_mode = "grayscale")
     img = cv2.cvtColor(crop_image, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(img, (48, 48))
+    img = cv2.resize(img, (48,48))
+    base64_img = image2Base64(img)
     # print(img.shape)
     # print(type(img))
-    img = cv2.normalize(img, None, alpha=0, beta=1,
-                        norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-    img = np.expand_dims(img, axis=0)
-    return img
+    img = cv2.normalize(img, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+    img = np.expand_dims(img,axis = 0)
+    return img, base64_img
 
 
 def predict_emotion(prep_img):
@@ -41,15 +63,16 @@ def predict_emotion(prep_img):
 
 
 def single_predict(img):
-    img = crop_image(img)
+    img = crop_image_dlib(img)
     if img is None:
         return None
-
-    img = preprocessing_image(img)
+    # print(img, file=sys.stdout)
+    img, base64_img = preprocessing_image(img)
+    # print(img)
     result = predict_emotion(img)
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # result = img.shape
-    return result
+    return result, base64_img
 
 
 def summary_predict(predicts: list) -> dict:
@@ -75,13 +98,13 @@ def predictEmotion():
         name = file_image.filename
         npimg = np.fromfile(file_image, np.uint8)
         img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
-        temp_predict = single_predict(img)
-        temp_predict = np.array(
-            [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]) if temp_predict is None else temp_predict
+        temp_predict, base64_img = single_predict(img)
+        temp_predict = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]) if temp_predict is None else temp_predict
         dict_predict = dict(zip(labels, temp_predict[0].tolist()))
         predict = {
-            'name': name,
-            'predict': dict_predict
+            'name' : name,
+            'image' : base64_img,
+            'predict' : dict_predict
         }
         predicts.append(predict)
     summary = summary_predict(predicts)
