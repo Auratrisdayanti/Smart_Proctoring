@@ -1,11 +1,44 @@
 function roundToTwo(num) {
-    return +(Math.round(num + "e+2") + "e-2");
+    num = +(Math.round(num + "e+2")  + "e-2")
+    if (isNaN(num)) {
+        // console.log(num);
+        return 0.0;
+    }
+    return num;
+}
+
+function emptyResult() {
+    // empty summary and image
+    $('#summary').empty();
+    $('.pip').remove();
+    $('#img-list').empty();
+}
+
+function appendImage(name, base64_img) {
+    $('#img-list').append(`
+    <li>
+        <a href="" style="background-image: url('data:image/jp;base64,${base64_img}')"></a>
+        <div class="details">
+            <h3>${name}</h3>
+        </div>
+    </li>
+    `);
+}
+
+function appendSummary(name, confident) {
+    $('#summary').append(`
+        <li class="list-items" data-aos="fade-left" data-aos-delay="200">
+            <a href="#">${name}</a>
+            <span>${confident}%</span>
+        </li>
+    `);
 }
 
 $(document).ready(function() {
 
     $('#submit').click(function() {
-
+        emptyResult();
+        $("#submit").attr("disabled", true);
         var form_data = new FormData();
 
         // Read selected files
@@ -24,32 +57,26 @@ $(document).ready(function() {
             processData: false,
             success: function(response) {
 
-                // for(var index = 0; index < response.length; index++) {
-                //     var src = response[index];
-
-                // // Add img element in <div id='preview'>
-                //     $('#preview').append('<img src="'+src+'" width="200px;" height="200px">');
-                // }
                 console.log(response)
+                
+                let predictions = response.predictions;
+                predictions.forEach(element =>{
+                    let name = element.name;
+                    let base64_img = element.image;
+                    // console.log(name);
+                    appendImage(name, base64_img);
+                });
+
                 let summary = response.summary;
-                $('#summary').empty();
                 let sortedSummary = Object.entries(summary).sort(([, a], [, b]) => b - a);
 
                 sortedSummary.forEach(element => {
                     let name = element[0];
-                    let convident = roundToTwo(element[1] * 100);
-
-                    $('#summary').append(`
-                        <li class="list-items" data-aos="fade-left" data-aos-delay="200">
-                            <a href="#">${name}</a>
-                            <span>${convident}%</span>
-                        </li>
-                    `)
+                    let confident = roundToTwo(element[1] * 100);
+                    appendSummary(name, confident)
                 });
-
             }
         });
-
+        $("#submit").attr("disabled", false);
     });
-
 });
