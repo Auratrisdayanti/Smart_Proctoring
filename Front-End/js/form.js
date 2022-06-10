@@ -75,8 +75,9 @@ $(document).ready(function() {
                     let confident = roundToTwo(element[1] * 100);
                     appendSummary(name, confident)
                 });
+                $("#submit").attr("disabled", false);
             }
         });
-        $("#submit").attr("disabled", false);
+        
     });
 });

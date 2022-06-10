@@ -94,6 +94,8 @@ def predictEmotion():
     predicts = []
     file_images = request.files.getlist('image')
     total_images = len(file_images)
+
+    
     for file_image in file_images:
         name = file_image.filename
         npimg = np.fromfile(file_image, np.uint8)
@@ -107,6 +109,8 @@ def predictEmotion():
             'predict' : dict_predict
         }
         predicts.append(predict)
+
+
     summary = summary_predict(predicts)
     result = {
         'predictions': predicts,
