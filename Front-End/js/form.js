@@ -1,3 +1,5 @@
+var predictions = null;
+
 function roundToTwo(num) {
     num = +(Math.round(num + "e+2")  + "e-2")
     if (isNaN(num)) {
@@ -14,10 +16,11 @@ function emptyResult() {
     $('#img-list').empty();
 }
 
-function appendImage(name, base64_img) {
+function appendImage(name, base64_img, imgId) {
+    let urlImage = (base64_img === null) ? 'assets/face-not-found.jpg': `data:image/jp;base64,${base64_img}`;
     $('#img-list').append(`
     <li>
-        <a href="" style="background-image: url('data:image/jp;base64,${base64_img}')"></a>
+        <a href="#" class="preventHref" style="background-image: url('${urlImage}')" data-img-id="${imgId}"></a>
         <div class="details">
             <h3>${name}</h3>
         </div>
@@ -28,15 +31,46 @@ function appendImage(name, base64_img) {
 function appendSummary(name, confident) {
     $('#summary').append(`
         <li class="list-items" data-aos="fade-left" data-aos-delay="200">
-            <a href="#">${name}</a>
+            <a href="#" class="preventHref">${name}</a>
             <span>${confident}%</span>
         </li>
     `);
 }
 
-$(document).ready(function() {
+function getImagePrediction(imgId) {
+    if (predictions == null) {
+        console.log('Predictions is null');
+        return false
+    }
+    let predict = predictions[imgId];
+    let result = `img: ${predict.name}\r\n`;
+    result += "prediction:\r\n";
+    let sortedPredict = Object.entries(predict.predict).sort(([, a], [, b]) => b - a);
+    sortedPredict.forEach(([emotion, confident]) => {
+        result += `${emotion}: ${roundToTwo(confident*100)}%\r\n`;
+    });
 
-    $('#submit').click(function() {
+    alert(result);
+}
+
+
+$(document).ready(function() {
+    
+	$(document).on('click', '.preventHref', function () {
+        return false;
+    });
+
+    $(document).on('click', '#img-list > li > a', function () {
+        let imgId = $(this).data("img-id");
+        getImagePrediction(imgId);
+    });
+
+    // $('#img-list > li > a').click(function () {
+    //     getImagePrediction(1);
+    // });
+
+    $("#img-form").on("submit", function (event) {
+        event.preventDefault();
         emptyResult();
         $("#submit").attr("disabled", true);
         var form_data = new FormData();
@@ -46,6 +80,8 @@ $(document).ready(function() {
         for (var index = 0; index < totalfiles; index++) {
             form_data.append("image", document.getElementById('files').files[index]);
         }
+
+        $("#img-form")[0].reset();
 
         // AJAX request
         $.ajax({
@@ -59,12 +95,12 @@ $(document).ready(function() {
 
                 console.log(response)
                 
-                let predictions = response.predictions;
-                predictions.forEach(element =>{
+                predictions = response.predictions;
+                predictions.forEach((element, idx) =>{
                     let name = element.name;
                     let base64_img = element.image;
                     // console.log(name);
-                    appendImage(name, base64_img);
+                    appendImage(name, base64_img, idx);
                 });
 
                 let summary = response.summary;
@@ -75,9 +111,17 @@ $(document).ready(function() {
                     let confident = roundToTwo(element[1] * 100);
                     appendSummary(name, confident)
                 });
+                
+            },
+            complete: function () {
                 $("#submit").attr("disabled", false);
             }
         });
-        
-    });
+    })
+
+    // $('#submitt').click(function(event) {
+    //     event.preventDefault();   
+    // });
+
+    
 });
