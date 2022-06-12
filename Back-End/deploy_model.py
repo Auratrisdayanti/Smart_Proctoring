@@ -6,11 +6,11 @@ from flask_cors import CORS, cross_origin
 import base64
 from dlib import get_frontal_face_detector
 
-import sys
+
 
 
 # load model dan label
-modelpath = 'model/model_deepface.h5'
+modelpath = 'model/upgrade_model.h5'
 labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 model = load_model(modelpath)
 faceDetector = get_frontal_face_detector()
@@ -65,7 +65,7 @@ def predict_emotion(prep_img):
 def single_predict(img):
     img = crop_image_dlib(img)
     if img is None:
-        return None
+        return None, None
     # print(img, file=sys.stdout)
     img, base64_img = preprocessing_image(img)
     # print(img)
@@ -77,11 +77,16 @@ def single_predict(img):
 
 def summary_predict(predicts: list) -> dict:
     summary = dict(zip(labels, np.zeros(7)))
-    len_predict = len(predicts)
+    numberPredict = 0
     for predict in predicts:
+        if predict['predict'] is None:
+            continue
+        numberPredict += 1
         for label in labels:
             summary[label] += predict['predict'][label]
-    summary = {key: summary[key] / len_predict for key in summary}
+    if numberPredict == 0:
+        return summary
+    summary = {key: summary[key] / numberPredict for key in summary}
     return summary
 
 
@@ -101,12 +106,14 @@ def predictEmotion():
         npimg = np.fromfile(file_image, np.uint8)
         img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
         temp_predict, base64_img = single_predict(img)
-        temp_predict = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]) if temp_predict is None else temp_predict
-        dict_predict = dict(zip(labels, temp_predict[0].tolist()))
+
+        if temp_predict is not None:
+            temp_predict = dict(zip(labels, temp_predict[0].tolist()))
+        
         predict = {
             'name' : name,
             'image' : base64_img,
-            'predict' : dict_predict
+            'predict' : temp_predict
         }
         predicts.append(predict)
 
