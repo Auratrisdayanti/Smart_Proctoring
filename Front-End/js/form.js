@@ -12,7 +12,6 @@ function roundToTwo(num) {
 function emptyResult() {
     // empty summary and image
     $('#summary').empty();
-    $('.pip').remove();
     $('#img-list').empty();
 }
 
@@ -28,9 +27,10 @@ function appendImage(name, base64_img, imgId) {
     `);
 }
 
-function appendSummary(name, confident) {
+function appendSummary(name, confident, delay) {
+    delay = (delay+1) * 100;
     $('#summary').append(`
-        <li class="list-items" data-aos="fade-left" data-aos-delay="200">
+        <li class="list-items" data-aos="fade-left" data-aos-delay="${delay}">
             <a href="#" class="preventHref">${name}</a>
             <span>${confident}%</span>
         </li>
@@ -53,6 +53,27 @@ function getImagePrediction(imgId) {
     alert(result);
 }
 
+function processingResponse(response) {
+    console.log(response);
+                
+    predictions = response.predictions;
+    predictions.forEach((element, idx) =>{
+        let name = element.name;
+        let base64_img = element.image;
+        // console.log(name);
+        appendImage(name, base64_img, idx);
+    });
+
+    let summary = response.summary;
+    let sortedSummary = Object.entries(summary).sort(([, a], [, b]) => b - a);
+
+    sortedSummary.forEach((element, index) => {
+        let name = element[0];
+        let confident = roundToTwo(element[1] * 100);
+        appendSummary(name, confident, index)
+    });
+}
+
 
 $(document).ready(function() {
     
@@ -71,7 +92,7 @@ $(document).ready(function() {
 
     $("#img-form").on("submit", function (event) {
         event.preventDefault();
-        emptyResult();
+        
         $("#submit").attr("disabled", true);
         var form_data = new FormData();
 
@@ -91,30 +112,24 @@ $(document).ready(function() {
             dataType: 'json',
             contentType: false,
             processData: false,
-            success: function(response) {
-
-                console.log(response)
-                
-                predictions = response.predictions;
-                predictions.forEach((element, idx) =>{
-                    let name = element.name;
-                    let base64_img = element.image;
-                    // console.log(name);
-                    appendImage(name, base64_img, idx);
-                });
-
-                let summary = response.summary;
-                let sortedSummary = Object.entries(summary).sort(([, a], [, b]) => b - a);
-
-                sortedSummary.forEach(element => {
-                    let name = element[0];
-                    let confident = roundToTwo(element[1] * 100);
-                    appendSummary(name, confident)
-                });
-                
+            beforeSend: function () {
+                $('.foto, .sidebar').hide(); 
+                emptyResult();
+                $(".loader-wrapper")
+                    .css("display", "flex");
             },
+            success: function(response) {
+                $('.foto, .sidebar').show();
+                processingResponse(response);
+                $(".loader-wrapper").fadeOut();
+            },
+            error: function () {
+                $(".loader-wrapper").hide();;
+            },
+            
             complete: function () {
                 $("#submit").attr("disabled", false);
+                $('.pip').remove();
             }
         });
     })
