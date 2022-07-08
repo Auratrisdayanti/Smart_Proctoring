@@ -1,12 +1,15 @@
+
+# external lib
 from tensorflow.keras.models import load_model
 from flask import Flask, request, render_template, jsonify
 import cv2
 import numpy as np
 from flask_cors import CORS, cross_origin
-import base64
 from dlib import get_frontal_face_detector
 
 
+# built in lib
+import base64
 
 
 # load model dan label
@@ -15,6 +18,7 @@ labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 model = load_model(modelpath)
 faceDetector = get_frontal_face_detector()
 
+# preprocess image
 def image2Base64(img):
     retval, buffer = cv2.imencode('.jpg', img)
     base64_img = base64.b64encode(buffer)
@@ -57,6 +61,7 @@ def preprocessing_image(crop_image):
     return img, base64_img
 
 
+# prediction
 def predict_emotion(prep_img):
     result = model.predict(prep_img)
     return result
@@ -74,7 +79,7 @@ def single_predict(img):
     # result = img.shape
     return result, base64_img
 
-
+# postprocessing output
 def summary_predict(predicts: list) -> dict:
     summary = dict(zip(labels, np.zeros(7)))
     numberPredict = 0
@@ -96,33 +101,43 @@ CORS(app)
 @app.route('/api/predict', methods=['POST'])
 @cross_origin()
 def predictEmotion():
+    # containts predictions for every image
     predicts = []
+
     file_images = request.files.getlist('image')
     total_images = len(file_images)
 
-    
+    # process every image
     for file_image in file_images:
         name = file_image.filename
         npimg = np.fromfile(file_image, np.uint8)
         img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        # predict the image
         temp_predict, base64_img = single_predict(img)
 
         if temp_predict is not None:
             temp_predict = dict(zip(labels, temp_predict[0].tolist()))
         
+        # parse the prediction with the image's information
         predict = {
             'name' : name,
             'image' : base64_img,
             'predict' : temp_predict
         }
+
+        # append the prediction
         predicts.append(predict)
 
-
+    # get the summary oe the prediction
     summary = summary_predict(predicts)
+
+    # parse the result to dictionary
     result = {
         'predictions': predicts,
         'summary': summary
     }
+
+    # return the result json
     return jsonify(result)
 
 
